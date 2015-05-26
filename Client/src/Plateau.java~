@@ -1,0 +1,290 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.JPanel;
+
+/**
+ *	Classe Plateau herité de Jpanel.
+ *	Cette classe est le Conteneur des 64 Cases. 
+ *	Elle servira à mettre à jour l'interface d'une partie (nouvelle position des pièces).
+ * 
+ *	Plateau a l'argument suivant :
+ *	Case[8][8] Cases
+ * 
+ * @author Legros Matthieu
+ * @version 0.0
+ */
+public class Plateau extends JPanel
+{ 
+	private Case[][] Cases ;
+
+	 
+	public Plateau()
+	{
+		Cases = new Case[8][8] ;
+		for (int i = 0 ; i < 8 ; i++) // [0;7]
+		{
+			for (int j = 0 ; j < 8 ; j++) // [0;7]
+			{
+				Cases[i][j] = new Case(i,j) ;
+			}
+		}
+	}
+	
+/**
+ * 	Fait office de Constructeur.
+ *	Lors de la création d'un plateau de jeu on dessine les cases.
+ *	Cette méthode est appellée automatiquement lorsque on fait un new Plateau.
+ *	ATTENTION ne pas oublier de faire un appel de la classe méthode de la classe mère.	
+ *	
+ *	@param Graphics Objet //argument de base de paintComponent 
+ */
+	public void paintComponent(Graphics g)
+	{
+		int i, j ; 	
+			
+		super.paintComponent(g) ; //pour dessiner Plateau.
+		this.setMinimumSize(new Dimension(800,800)) ; //taille minimum du plateau.
+		this.setBackground(Color.BLACK) ; // pour faire les bordures.
+		int largeur = this.getWidth() ;
+		int hauteur = this.getHeight() ;
+		//System.out.println("taille case : "+largeur/8+";"+hauteur/8) ;
+		this.setLayout(new BorderLayout()) ;
+		JPanel conteneur = new JPanel() ; //on passe par un conteneur auxiliaire.
+		conteneur.setPreferredSize(new Dimension(800, 800)) ;
+		conteneur.setLayout(new GridBagLayout()) ; // on definit la grille de cases
+		GridBagConstraints grid = new GridBagConstraints() ; //grid servira a positionner les objets
+		grid.insets = new Insets(0, 0, 0, 0) ;
+		//Cases = new Case[8][8] ; //On construit le tableau de 8*8 cases
+	
+		for (i = 0 ; i < 8 ; i++) // [0;7]
+		{
+			grid.gridheight = 1 ;
+			grid.gridwidth = 1 ;
+			grid.gridy = i ;
+			for (j = 0 ; j < 8 ; j++) // [0;7]
+			{
+				Cases[i][j].setPreferredSize(new Dimension(100, 100)) ;
+				Cases[i][j].setMinimumSize(new Dimension(100, 100)) ;
+				if(j==7 && i!=7)
+					grid.gridwidth = GridBagConstraints.REMAINDER ; //pour signaler au Grid que c'est la fin de la ligne
+				grid.gridx = j ;
+				conteneur.add(Cases[i][j], grid) ;
+			}
+		}
+		this.add(conteneur, BorderLayout.CENTER) ;
+		//update_affichage() ;
+	}
+	
+/*	******************************
+ 	********* Accesseurs *********
+ 	******************************	*/
+	
+ /**
+ *	Accesseur Cases[][]
+ *	Renvoit la case aux indices demandés
+ * 
+ *	@param int i // indice lignes
+ *	@param int j //indice colonnes
+ *
+ *	@throws (i>=0 && i<8) && ( j>=0 && j<8)
+ */
+	public Case get_Case(int i, int j)
+	{
+		return Cases[i][j] ;
+	}
+	
+/**
+ * 	Accesseur de la Piece sur la case
+ * 	renvoit la Piece sur la case
+ * 
+ * 	@param int i //indice ligne
+ * 	@param int j //indice colonne
+ * 
+ *  @throws (i>=0 && i<8) && ( j>=0 && j<8)
+ */
+	public Piece get_Piece(int i, int j)
+	{
+		return Cases[i][j].get_Piece() ;
+	}
+	
+/*	******************************
+ 	********  Modifieur  *********
+ 	******************************	*/
+	
+/**
+ * 	Ajoute les Pieces au Plateau.
+ * 	
+ */
+	public void remplir_Plateau_joueur_blanc()
+	{
+		//System.out.println("En cours") ;
+		/* test image */
+		Piece roi_noir = new Piece(NOM.ROI, "images/roi_noir.png") ;
+		Piece fou_noir1 = new Piece(NOM.PION, "images/fou_noir.png") ;
+		Piece fou_noir2 = new Piece(NOM.PION, "images/fou_noir.png") ;
+		Piece tour_noir1 = new Piece(NOM.TOUR, "images/tour_noir.png") ;
+		Piece tour_noir2 = new Piece(NOM.TOUR, "images/tour_noir.png") ;
+		Piece reine_noir = new Piece(NOM.REINE, "images/reine_noir.png") ;
+		Piece cavalier_noir1 = new Piece(NOM.CAVALIER, "images/cavalier_noir.png") ;
+		Piece cavalier_noir2 = new Piece(NOM.CAVALIER, "images/cavalier_noir.png") ;
+		
+		Piece roi_blanc = new Piece(NOM.ROI, "images/roi_blanc.png") ;
+		Piece fou_blanc1 = new Piece(NOM.PION, "images/fou_blanc.png") ;
+		Piece fou_blanc2 = new Piece(NOM.PION, "images/fou_blanc.png") ;
+		Piece tour_blanc1 = new Piece(NOM.TOUR, "images/tour_blanc.png") ;
+		Piece tour_blanc2 = new Piece(NOM.TOUR, "images/tour_blanc.png") ;
+		Piece reine_blanc = new Piece(NOM.REINE, "images/reine_blanc.png") ;
+		Piece cavalier_blanc1 = new Piece(NOM.CAVALIER, "images/cavalier_blanc.png") ;
+		Piece cavalier_blanc2 = new Piece(NOM.CAVALIER, "images/cavalier_blanc.png") ;
+		
+		for (int i = 0 ; i <8 ; i++)
+		{
+			Piece pion_noir = new Piece(NOM.PION, "images/pion_noir.png") ;
+			Cases[1][i].set_Piece(pion_noir) ;
+		}
+		
+				for (int i = 0 ; i <8 ; i++)
+		{
+			Piece pion_blanc = new Piece(NOM.PION, "images/pion_blanc.png") ;
+			Cases[6][i].set_Piece(pion_blanc) ;
+		}
+		
+		
+		Cases[0][0].set_Piece(tour_noir1) ; 
+		Cases[0][1].set_Piece(cavalier_noir1) ;
+		Cases[0][2].set_Piece(fou_noir1) ;
+		Cases[0][3].set_Piece(reine_noir) ;
+		Cases[0][4].set_Piece(roi_noir) ;
+		Cases[0][5].set_Piece(fou_noir2) ;
+		Cases[0][6].set_Piece(cavalier_noir2) ;
+		Cases[0][7].set_Piece(tour_noir2) ;
+
+		
+		Cases[7][0].set_Piece(tour_blanc1) ; 
+		Cases[7][1].set_Piece(cavalier_blanc1) ;
+		Cases[7][2].set_Piece(fou_blanc1) ;
+		Cases[7][3].set_Piece(reine_blanc) ;
+		Cases[7][4].set_Piece(roi_blanc);
+		Cases[7][5].set_Piece(fou_blanc2) ;
+		Cases[7][6].set_Piece(cavalier_blanc2) ;
+		Cases[7][7].set_Piece(tour_blanc2) ;
+
+		update_affichage() ;
+	}
+	
+	/**
+	*	remplit un plateau pour le joueur noir
+	*
+	*/
+	public void remplir_Plateau_joueur_noir()
+	{
+		//System.out.println("En cours") ;
+		/* test image */
+		Piece roi_noir = new Piece(NOM.ROI, "images/roi_noir.png") ;
+		Piece fou_noir1 = new Piece(NOM.PION, "images/fou_noir.png") ;
+		Piece fou_noir2 = new Piece(NOM.PION, "images/fou_noir.png") ;
+		Piece tour_noir1 = new Piece(NOM.TOUR, "images/tour_noir.png") ;
+		Piece tour_noir2 = new Piece(NOM.TOUR, "images/tour_noir.png") ;
+		Piece reine_noir = new Piece(NOM.REINE, "images/reine_noir.png") ;
+		Piece cavalier_noir1 = new Piece(NOM.CAVALIER, "images/cavalier_noir.png") ;
+		Piece cavalier_noir2 = new Piece(NOM.CAVALIER, "images/cavalier_noir.png") ;
+		
+		Piece roi_blanc = new Piece(NOM.ROI, "images/roi_blanc.png") ;
+		Piece fou_blanc1 = new Piece(NOM.PION, "images/fou_blanc.png") ;
+		Piece fou_blanc2 = new Piece(NOM.PION, "images/fou_blanc.png") ;
+		Piece tour_blanc1 = new Piece(NOM.TOUR, "images/tour_blanc.png") ;
+		Piece tour_blanc2 = new Piece(NOM.TOUR, "images/tour_blanc.png") ;
+		Piece reine_blanc = new Piece(NOM.REINE, "images/reine_blanc.png") ;
+		Piece cavalier_blanc1 = new Piece(NOM.CAVALIER, "images/cavalier_blanc.png") ;
+		Piece cavalier_blanc2 = new Piece(NOM.CAVALIER, "images/cavalier_blanc.png") ;
+		
+		for (int i = 0 ; i <8 ; i++)
+		{
+			Piece pion_noir = new Piece(NOM.PION, "images/pion_noir.png") ;
+			Cases[6][i].set_Piece(pion_noir) ;
+		}
+		
+				for (int i = 0 ; i <8 ; i++)
+		{
+			Piece pion_blanc = new Piece(NOM.PION, "images/pion_blanc.png") ;
+			Cases[1][i].set_Piece(pion_blanc) ;
+		}
+		
+		
+		Cases[7][0].set_Piece(tour_noir1) ; 
+		Cases[7][1].set_Piece(cavalier_noir1) ;
+		Cases[7][2].set_Piece(fou_noir1) ;
+		Cases[7][4].set_Piece(reine_noir) ;
+		Cases[7][3].set_Piece(roi_noir) ;
+		Cases[7][5].set_Piece(fou_noir2) ;
+		Cases[7][6].set_Piece(cavalier_noir2) ;
+		Cases[7][7].set_Piece(tour_noir2) ;
+
+		
+		Cases[0][0].set_Piece(tour_blanc1) ; 
+		Cases[0][1].set_Piece(cavalier_blanc1) ;
+		Cases[0][2].set_Piece(fou_blanc1) ;
+		Cases[0][4].set_Piece(reine_blanc) ;
+		Cases[0][3].set_Piece(roi_blanc);
+		Cases[0][5].set_Piece(fou_blanc2) ;
+		Cases[0][6].set_Piece(cavalier_blanc2) ;
+		Cases[0][7].set_Piece(tour_blanc2) ;
+
+		update_affichage() ;
+	}
+
+/**
+ *  On vide la case	(on enleve la Piece)
+ *  
+ *  @param int i //abscisses Case
+ *  @param int j //ordonnes Case
+ */
+	public void vider_case(int i, int j)
+	{
+		Cases[i][j].set_Piece(null) ;
+		update_affichage() ;
+	}
+	
+/**
+*  on ajoute une Piece a la case
+*  
+*  @param int i //abscisses Case
+*  @param int j //ordonnes Case
+*/
+	public void ajouter_Piece(int i, int j, Piece piece)
+	{
+		Cases[i][j].set_Piece(piece) ;
+		update_affichage() ;
+	}
+	
+	/**
+	 * encadre la case
+	 * 
+	 * @param i
+	 * @param j
+	 */
+	public void selection(int i, int j)
+	{
+		Cases[i][j].selection() ;
+		revalidate() ;
+		repaint() ;
+	}
+	
+/**
+ *	Met a jour l'affichage du plateau
+ * 	
+ */
+	public void update_affichage()
+	{
+		revalidate();
+		//repaint();
+	}
+}

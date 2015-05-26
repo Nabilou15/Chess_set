@@ -1,0 +1,7 @@
+
+public enum UTILISATEUR
+{
+	BLANC ,
+	NOIR ,
+	SPECTATEUR
+}

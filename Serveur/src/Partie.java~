@@ -1,0 +1,428 @@
+import java.io.IOException;
+import java.net.Socket;
+import java.util.ArrayList;
+
+/**
+ * Classe décrivant er gérant une partie d'echec
+ * 
+ * @author matthieu
+ */
+public class Partie
+{
+	//private Hashtable<UTILISATEUR, String> Liste_joueur ;
+	private Socket[] Socket ;
+	private int Nbr_connectes ;
+	private Reception[] Reception ;
+	private Envoi[] Envoi ;
+	private int tour ; 
+	private boolean[] Partie_a_jours ;// true si la partie de l'utilisateur est a jour false sinon
+	private int Nbr_utilisateur_a_jours ;
+	int[][] Coord ;//coordonne a envoyer a tous les observateur et au joueur dont c'est pas le tour
+	private Case[][] Cases ;
+	private Coups Coups ;
+	private int Tour ;
+	private ArrayList<Piece> Pieces_blanches ;
+	private ArrayList<Piece> Pieces_noires ;
+
+	/**
+	 * Constructeur de Partie
+	 */
+	public Partie ()
+	{	
+		Coord = new int[2][2] ;
+		Partie_a_jours = new boolean[12] ;
+		for(int i = 0 ; i<12 ; i++)
+		{
+			Partie_a_jours[i] = true ;
+		}
+		Socket = new Socket[12] ;
+		Reception = new Reception[12] ;
+		Envoi = new Envoi[12] ;
+		Nbr_connectes = 0 ;
+		Nbr_utilisateur_a_jours = 0 ;
+		tour = 0 ;
+		Coups = null ;
+		Tour = 0 ;		
+
+		Cases = new Case[8][8] ;
+		for (int i =0; i<8 ; i++)
+		{
+			for (int j = 0; j<8; j++)
+			{
+				Cases[i][j] = new Case(null) ;
+			}
+		}
+		
+		Pieces_blanches = new ArrayList<Piece> () ;
+		Pieces_noires = new ArrayList<Piece> () ;
+
+		creation_echiquier() ;
+	}
+	
+	/**
+	*	creation echiquier
+	*
+	*/
+	public void creation_echiquier()
+	{
+		Piece roi_noir = new Roi(NOM.ROI ,COULEUR.NOIR)  ;
+		Pieces_noires.add(roi_noir) ;
+		Piece fou_noir1 = new Fou(NOM.FOU, COULEUR.NOIR) ;
+		Pieces_noires.add(fou_noir1) ;
+		Piece fou_noir2 = new Fou(NOM.FOU, COULEUR.NOIR) ;
+		Pieces_noires.add(fou_noir2) ;
+		Piece tour_noir1 = new Tour(NOM.TOUR, COULEUR.NOIR) ;
+		Pieces_noires.add(tour_noir1) ;
+		Piece tour_noir2 = new Tour(NOM.TOUR, COULEUR.NOIR) ;
+		Pieces_noires.add(tour_noir2) ;
+		Piece reine_noir = new Reine(NOM.REINE, COULEUR.NOIR) ;
+		Pieces_noires.add(reine_noir) ;
+		Piece cavalier_noir1 = new Cavalier(NOM.CAVALIER, COULEUR.NOIR) ;
+		Pieces_noires.add(cavalier_noir1) ;
+		Piece cavalier_noir2 = new Cavalier(NOM.CAVALIER, COULEUR.NOIR) ;
+		Pieces_noires.add(cavalier_noir2) ;
+		
+		Piece roi_blanc = new Roi(NOM.ROI, COULEUR.BLANC) ;
+		Pieces_blanches.add(roi_blanc) ;
+		Piece fou_blanc1 = new Fou(NOM.FOU, COULEUR.BLANC) ;
+		Pieces_blanches.add(fou_blanc1) ;
+		Piece fou_blanc2 = new Fou(NOM.FOU, COULEUR.BLANC) ;
+		Pieces_blanches.add(fou_blanc2) ;
+		Piece tour_blanc1 = new Tour(NOM.TOUR, COULEUR.BLANC) ;
+		Pieces_blanches.add(tour_blanc1) ;
+		Piece tour_blanc2 = new Tour(NOM.TOUR, COULEUR.BLANC) ;
+		Pieces_blanches.add(tour_blanc2) ;
+		Piece reine_blanc = new Reine(NOM.REINE, COULEUR.BLANC) ;
+		Pieces_blanches.add(reine_blanc) ;
+		Piece cavalier_blanc1 = new Cavalier(NOM.CAVALIER, COULEUR.BLANC) ;
+		Pieces_blanches.add(cavalier_blanc1) ;
+		Piece cavalier_blanc2 = new Cavalier(NOM.CAVALIER, COULEUR.BLANC) ;
+		Pieces_blanches.add(cavalier_blanc2) ;
+		
+		for (int i = 0 ; i < 8 ; i++)
+		{
+			Piece pion_noir = new Pion(NOM.PION, COULEUR.NOIR) ;
+			Pieces_noires.add(pion_noir) ;
+			Cases[1][i].set_Piece_initiale(pion_noir, 1, i) ;
+		}
+		
+				for (int i = 0 ; i < 8 ; i++)
+		{
+			Piece pion_blanc = new Pion(NOM.PION, COULEUR.BLANC) ;
+			Pieces_blanches.add(pion_blanc) ;
+			Cases[6][i].set_Piece_initiale(pion_blanc, 6, i) ;
+		}
+		
+		
+		Cases[0][0].set_Piece_initiale(tour_noir1, 0, 0) ; 
+		Cases[0][1].set_Piece_initiale(cavalier_noir1, 0, 1) ;
+		Cases[0][2].set_Piece_initiale(fou_noir1,0,2) ;
+		Cases[0][3].set_Piece_initiale(reine_noir,0,3) ;
+		Cases[0][4].set_Piece_initiale(roi_noir,0,4) ;
+		Cases[0][5].set_Piece_initiale(fou_noir2,0,5) ;
+		Cases[0][6].set_Piece_initiale(cavalier_noir2,0,6) ;
+		Cases[0][7].set_Piece_initiale(tour_noir2,0,7) ;
+
+		
+		Cases[7][0].set_Piece_initiale(tour_blanc1,7,0) ; 
+		Cases[7][1].set_Piece_initiale(cavalier_blanc1,7,1) ;
+		Cases[7][2].set_Piece_initiale(fou_blanc1,7,2) ;
+		Cases[7][3].set_Piece_initiale(reine_blanc,7,3) ;
+		Cases[7][4].set_Piece_initiale(roi_blanc,7,4);
+		Cases[7][5].set_Piece_initiale(fou_blanc2,7,5) ;
+		Cases[7][6].set_Piece_initiale(cavalier_blanc2,7,6) ;
+		Cases[7][7].set_Piece_initiale(tour_blanc2,7,7) ;
+		
+	}
+	
+	/**
+	 * mettre a jour le socket
+	 * incrementer le nombre de joueurs connecté a la partie 
+	 */
+	public void set_Socket(Socket socket)
+	{
+		
+		this.Socket[this.Nbr_connectes] = socket ;
+		this.Nbr_connectes++ ;
+		Nbr_utilisateur_a_jours++ ;
+		//System.out.println("Nbr de joueurs connectes : "+Nbr_connectes) ;	
+	}
+	
+	/**
+	 * Jouer la partie
+	 */
+	public void jouer(Joueur joueur) 
+	{
+		Reception[joueur.get_Id_joueur()] = new Reception(this.Socket[joueur.get_Id_joueur()]) ;
+		Envoi[joueur.get_Id_joueur()] = new Envoi(this.Socket[joueur.get_Id_joueur()]) ;
+		boolean fin = false ;
+		System.out.println("test joueur Id : " +joueur.get_Id_joueur()) ;
+		System.out.println("test Couleur : " +joueur.get_Couleur()) ;
+		update_Partie (joueur) ;		
+
+		do
+		{	
+		
+			if( joueur.get_Id_joueur() == tour && this.tous_a_jours())
+			{
+				
+				Coord = Reception[joueur.get_Id_joueur()].run() ;
+				if (null == Coord)
+				{
+					System.out.println("Un utilisateur s'est deconnecté") ;
+					fin = true ;
+					break ;
+				}
+
+				System.out.println("En reception du joueur:" +joueur.get_Couleur()) ;
+				
+				while(this.coup_valide(joueur) == false) //le joueur est obliger de bouger la piece.
+				{
+					Coord[1][0] = Coord[0][0] ;
+					Coord[1][1] = Coord[0][1] ;
+					System.out.println("le coup du joueur"+joueur.get_Couleur()+"est annulé") ;
+
+					if (-1 == Envoi[joueur.get_Id_joueur()].run(Coord))
+					{
+						System.out.println("Un utilisateur s'est deconnecté") ;
+						fin = true ;
+					}
+				
+					Coord = Reception[joueur.get_Id_joueur()].run() ;
+					if (null == Coord)
+					{
+						System.out.println("Un utilisateur s'est deconnecté") ;
+						fin = true ;
+					}
+				}
+				
+				this.Nbr_utilisateur_a_jours = 0 ;
+				this.tous_a_jours_reset() ;
+				
+				if (tour == 0)
+		    		tour = 1 ;
+		    	else
+		    		tour = 0 ;
+
+				Tour++ ;
+				System.out.println("Tour : "+Tour) ;
+			}
+			
+			if(!Partie_a_jours[joueur.get_Id_joueur()])
+			{
+				if(null == Coord || -1 == Envoi[joueur.get_Id_joueur()].run(Coord))
+				{
+					System.out.println("Un utilisateur s'est deconnecté") ;
+					fin = true ;
+				}
+				Partie_a_jours[joueur.get_Id_joueur()] = true ;
+				Nbr_utilisateur_a_jours++ ;
+    	}
+			
+			this.attente() ;
+		}
+		while(!fin) ;		
+		
+		this.close(joueur) ;
+	}
+	
+	/**
+	 * attendre la mise a jour de tour.
+	 */
+	public void attente()
+	{
+		try 
+		{
+	    Thread.sleep(1) ;
+	  } 
+	  catch (InterruptedException e) 
+	  {
+	  
+	  }
+	}
+	
+	/**
+	 * verifie si tout les connectés ont leur partie a jour
+	 */
+	public boolean tous_a_jours()
+	{
+			if(Nbr_utilisateur_a_jours == Nbr_connectes)
+				return true ;
+			else
+				return false ;
+	}
+	
+	public void tous_a_jours_reset()
+	{
+		for(int i = 0 ; i<Nbr_connectes ; i++)
+		{
+			Partie_a_jours[i] = false ;
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void close(Joueur joueur) 
+	{
+  		try
+		{
+			//Serveur_socket.close() ;
+			Socket[joueur.get_Id_joueur()].close() ;
+			System.out.println("Un joueur s'est deconnecté") ;
+		}
+		catch(IOException e)
+		{
+			System.out.println("Erreur lors de la fermeture du socket") ;
+		}
+		return ;
+	}
+	
+	/**
+	 * 
+	 */
+	public void observer(Joueur joueur) 
+	{
+		System.out.println("test joueur Id : " +joueur.get_Id_joueur()) ;
+		Envoi[joueur.get_Id_joueur()] = new Envoi(this.Socket[joueur.get_Id_joueur()]) ;
+		update_Partie(joueur) ;
+
+		while(true)
+   	{
+			attente() ;
+			
+			if(!Partie_a_jours[joueur.get_Id_joueur()])
+			{
+				System.out.println("Envoi des coordonnes a l'observateur : "+joueur.get_Id_joueur()) ;
+				Partie_a_jours[joueur.get_Id_joueur()] = true ;
+				Nbr_utilisateur_a_jours++ ;
+			  	if( -1 == Envoi[joueur.get_Id_joueur()].run(Coord) )
+			  	{
+						System.out.println("Socket clos...") ;
+			  		close(joueur) ;
+			  		return ;
+			  	}
+			}
+    }
+	}
+
+	public void update_Partie (Joueur joueur)
+	{
+		int new_coord[][] = new int[2][2] ;
+
+		for(int i=0 ; i<Pieces_blanches.size() ; i++)
+		{
+
+			new_coord[0] = Pieces_blanches.get(i).get_Position_initiale() ;
+			new_coord[1] = Pieces_blanches.get(i).get_Position() ;
+		
+			if (-1 == Envoi[joueur.get_Id_joueur()].run(new_coord))
+			{
+				System.out.println("Un joueur s'est deconnecté") ;
+			}
+			System.out.println("new_coord : "+"["+new_coord[0][0]+";"+new_coord[0][1]+"]"+" -> "+"["+new_coord[1][0]+";"+new_coord[1][1]+"]") ;
+		}
+
+		for(int i=0 ; i<Pieces_noires.size() ; i++)
+		{
+			new_coord[0] = Pieces_noires.get(i).get_Position_initiale() ;
+			new_coord[1] = Pieces_noires.get(i).get_Position() ;
+
+			System.out.println("new_coord : "+"["+new_coord[0][0]+";"+new_coord[0][1]+"]"+" -> "+"["+new_coord[1][0]+";"+new_coord[1][1]+"]") ;
+			if (-1 == Envoi[joueur.get_Id_joueur()].run(new_coord))
+			{
+				System.out.println("Un joueur s'est deconnecté") ;
+			}
+		}
+
+		System.out.println("Fin mise a jours...") ;	
+	}	
+
+	public boolean coup_valide(Joueur joueur)
+	{
+		
+		int i = Coord[0][0] ;
+		int j = Coord[0][1] ;
+
+		int new_i = Coord[1][0] ;
+		int new_j = Coord[1][1] ;
+		
+		System.out.println("coup du : "+joueur.get_Couleur()) ;
+		
+		if(Coord[0][0] == Coord[1][0] && Coord[0][1] == Coord[1][1])
+			return false ;
+		
+		if(Cases[i][j].is_empty())
+		{
+			System.out.println("la case est vide !!!") ;
+			return false ;
+		}
+	
+		Piece piece = Cases[i][j].get_Piece() ;					
+
+		if((piece.get_Couleur()) != joueur.get_Couleur())// on peut pas bouger la piece d'un adversaire.
+			return false ;
+
+		Coups = piece.mouvement_valide(Cases, new_i, new_j) ;
+
+		if(null == Coups)
+		{
+			return false ;
+		}
+	
+		System.out.println("Le coups du joueur "+joueur.get_Couleur()+" est autorisé.") ;
+		bouger_Piece(piece, i, j, new_i, new_j) ;	
+
+		return true;
+	}
+
+	/**
+	* return null si l'adversaire est deja en echec (normalement c'est impossible)
+	*	return PAT si le joueur est PAT, sinon ECHEC ET MAT si la partie est fini.
+	*/
+	public ETAT_PARTIE evaluer_Etat_Partie(Joueur joueur) 
+	{
+			for(int i = 0 ; i < 16 ; i++)
+			{
+				for( int j = 0 ; j < 16 ; j++)
+				{
+					
+				}
+			}			
+
+			return ETAT_PARTIE.EN_COURS ;
+	}
+
+
+	/**
+	*	Fonction de verification.
+	*/
+	public boolean Blanc_est_echec ()
+	{
+		return true ;
+	}
+
+	public boolean Noir_est_echec ()
+	{
+		return true ;
+	}
+
+	public boolean Blanc_est_mat ()
+	{
+		return true ;
+	}
+
+	public boolean Noir_est_mat ()
+	{
+		return true ;
+	}
+
+	/**
+	*	bouge la piece
+	*/
+	public void bouger_Piece(Piece piece, int i, int j, int new_i, int new_j)
+	{
+		Cases[new_i][new_j].set_Piece(piece, new_i, new_j) ;
+		Cases[i][j].vider_case() ;		
+	}
+}

@@ -1,0 +1,7 @@
+public enum ETAT_PARTIE
+{
+	EN_COURS,
+	ECHEC,
+	ECHEC_MAT,
+	PAT
+}

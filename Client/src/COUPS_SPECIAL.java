@@ -1,0 +1,7 @@
+public enum COUPS_SPECIAL
+{
+	NORMAL ,
+	GRAND_ROCK,
+	PETIT_ROCK,
+	PRISE_PASSANT	
+}
